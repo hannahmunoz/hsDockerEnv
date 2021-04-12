@@ -1,0 +1,1 @@
+Attempt to make the Zeppelin Docker as small as possible by only including what I needed. Still ended up pretty big.

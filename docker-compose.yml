@@ -1,0 +1,140 @@
+version: "3.9"
+
+services:
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
+    container_name: hadoop.namenode
+    restart: always
+    ports:
+      - 50070:50070
+      - 9000:9000
+    volumes:
+      - hadoop_namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=test-env
+      - JAVA_HEAP_MAX=-Xms4G -Xmx4G
+    env_file:
+       - ./hadoop.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:50070/"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+    networks:
+      - spark-net
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
+    container_name: hadoop.datanode
+    restart: always
+    volumes:
+      - hadoop_datanode:/hadoop/dfs/data
+    environment:
+      SERVICE_PRECONDITION: "hadoop.namenode:50070"
+    env_file:
+      - ./hadoop.env
+    depends_on:
+      namenode:
+          condition: service_healthy
+    networks:
+      - spark-net
+
+  spark.base:
+    build: ./spark/base
+    container_name: spark.base
+    image: spark.base
+    networks:
+      - spark-net
+
+  spark.master:
+    build: ./spark/master
+    container_name: spark.master
+    image: spark.master
+    ports:
+      - 8080:8080
+      - 7077:7077
+    depends_on:
+      namenode:
+          condition: service_healthy
+      datanode:
+        condition: service_healthy
+    networks:
+      - spark-net
+
+  spark.worker:
+    build: ./spark/worker
+    container_name: spark.worker
+    image: spark.worker
+    ports:
+      - 8081:8081
+    depends_on:
+      namenode:
+        condition: service_healthy
+      datanode:
+        condition: service_healthy
+    networks:
+      - spark-net
+
+ zeppelin:
+   build: ./zeppelin
+   container_name: zeppelin
+   image: zeppelin
+   ports:
+     - 4070:4070
+   volumes:
+     - zeppelin_notebook:/zeppelin/notebook
+     - zeppelin_conf:/zeppelin/conf
+   networks:
+     - spark-net
+
+  hue:
+    image: bde2020/hdfs-filebrowser:3.11
+    container_name: hue
+    ports:
+      - 8088:8088
+    env_file:
+      - ./hadoop.env
+    depends_on:
+      - namenode
+      - datanode
+    networks:
+      - spark-net
+    environment:
+      - NAMENODE_HOST=namenode
+
+networks:
+  spark-net:
+    external:
+      name: spark-net
+
+volumes:
+  hadoop_namenode:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./hadoop/data/namenode
+  hadoop_datanode:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./hadoop/data/datanode
+  zeppelin_notebook:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./zeppelin/notebook
+  zeppelin_conf:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./zeppelin/zeppelin_conf
+  sparkSubmitFolder:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: C:/sparkSubmitFolder/path

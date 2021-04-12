@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+
+# Example of a spark sumbit application
+# In the next version of docker-compose this can be moved to docker-compose.yml
+# And moved to a seperate group than the rest of the containers
+
+  exampleSparkSubmit:
+    build: ./spark/submit
+    container_name: submit
+    image: spark-submit
+    volumes:
+      - sparkSubmitFolder:/sparkSubmitFolder
+    networks:
+      - spark-net
+    ports:
+      - 5005:5005 # IntelliJ Debugging
+      - 9010:9010 # VisualVm Debugging
+      - 4040:4040 # Spark UI port
+    environment:
+      SPARK_APPLICATION_JAR_LOCATION: "$APPLICATION_JAR_PATH/Example.jar"
+      SPARK_APPLICATION_MAIN_CLASS: "--class  org.test.example.ExampleClass"
+      SPARK_APPLICATION_ARGS: "-passin $APPLICATION_SUPPORTING_PATH/file.txt"
+      SPARK_APPLICATION_SUPPORTING_JARS_LOCATION: "--jars $APPLICATION_SUPPORTING_PATH/another.jar"
+      SPARK_SUBMIT_ARGS: "$SPARK_SUBMIT_BASE_ARGS $SPARK_SUBMIT_DEBUG_ARGS"
+      ENABLE_INIT_DAEMON: "false" # keeps from hanging on start up
+      HOSTNAME: "hostname" # Lets the executor talk to the master
+
+networks:
+  spark-net:
+    external:
+      name: spark-net
+
+volumes:
+  sparkSubmitFolder:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: C:/sparkSubmitFolder/path
