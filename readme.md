@@ -13,7 +13,7 @@ Use Chocolaty to install make
 
 Spin cluster up/down using `make up/down`
 
-Sumbit Spark jobs with 'make `ExampleSparkSubmit`
+Sumbit Spark jobs with `make ExampleSparkSubmit`
 
 Hadoop : http://localhost:50070/
 
@@ -27,7 +27,7 @@ Spark : http://localhost:8080/
 
 	Spark Executor: http://localhost:4040/
 
-Hue:  : http://localhost:8088/home
+Hue:  http://localhost:8088/home
 
 Zeppelin:  http://localhost:4070
 
@@ -38,6 +38,6 @@ Add Docker-Compose configuration for each poller and staging ELT component using
 
 Create RemoteJVMDebug config
 
-Make sure all config files use Linux file paths (/ not \)
+Make sure all config files use Linux file paths (/ not \\)
 
 Run the Docker-Compose, then attach debugger

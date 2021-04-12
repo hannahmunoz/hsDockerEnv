@@ -1,5 +1,4 @@
 version: "3.9"
-
 services:
   namenode:
     image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
@@ -75,17 +74,16 @@ services:
     networks:
       - spark-net
 
- zeppelin:
-   build: ./zeppelin
-   container_name: zeppelin
-   image: zeppelin
-   ports:
-     - 4070:4070
-   volumes:
-     - zeppelin_notebook:/zeppelin/notebook
-     - zeppelin_conf:/zeppelin/conf
-   networks:
-     - spark-net
+  zeppelin:
+    build: ./zeppelin
+    container_name: zeppelin
+    image: zeppelin
+    ports:
+      - 4070:4070
+    volumes:
+      - zeppelin_notebook:/zeppelin/notebook
+    networks:
+      - spark-net
 
   hue:
     image: bde2020/hdfs-filebrowser:3.11
@@ -126,12 +124,6 @@ volumes:
       o: bind
       type: none
       device: ./zeppelin/notebook
-  zeppelin_conf:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./zeppelin/zeppelin_conf
   sparkSubmitFolder:
     driver: local
     driver_opts:

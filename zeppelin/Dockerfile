@@ -24,6 +24,8 @@ WORKDIR /zeppelin
 RUN rm -r LICENSE licenses NOTICE README.md plugins k8s
 RUN find bin -type f -name "*.cmd" -exec rm {} \;
 
+COPY ["conf/", "./zeppelin/conf/"]
+COPY ["../spark/conf/", "./spark/conf/"]
 
 RUN chmod +x bin/zeppelin.sh
 ENTRYPOINT ["/bin/bash", "/zeppelin/bin/zeppelin.sh"]
